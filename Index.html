@@ -902,7 +902,7 @@
     options: ["A) if", "B) unless", "C) though", "D) although"],
     correctAnswer: 0,
     explanation: "الإجابة الصحيحة: A) if<br><br>الشرح: نستخدم 'if' للتعبير عن شرط محتمل الحدوث."
-}
+},
 {
     question: "81. By the time we arrived, the movie ____.",
     options: ["A) has started", "B) had started", "C) started", "D) was starting"],
@@ -1022,7 +1022,7 @@
     options: ["A) which", "B) where", "C) that", "D) in which"],
     correctAnswer: 1,
     explanation: "الإجابة الصحيحة: B) where<br><br>الشرح: 'where' تُستخدم للدلالة على المكان في الجمل الموصولة."
-}
+},
 {
     question: "101. We couldn’t go out because it was snowing ____.",
     options: ["A) heavy", "B) heavily", "C) heaviness", "D) heaviest"],
@@ -1143,7 +1143,7 @@
     correctAnswer: 1,
     explanation: "الإجابة الصحيحة: B) had<br><br>الشرح: في جمل التمني (wish) نستخدم الماضي."
 }
-];
+        ];
 
         // Reading Comprehension (20 سؤالاً)
         const readingData = [
@@ -1296,7 +1296,7 @@
 
         // Listening Comprehension (10 أسئلة)
         const listeningQuestions = [
-           {
+            {
     "audioText": "Man: Where did you put the keys? Woman: They’re on the kitchen counter, next to the fruit bowl.",
     "question": "1. Where are the keys?",
     "options": ["A) In the drawer", "B) On the table", "C) On the kitchen counter", "D) In the car"],
@@ -1370,28 +1370,37 @@
 
         // دالة تحويل النص إلى كلام
         function speakText(text) {
+            if (!('speechSynthesis' in window)) {
+                alert('عذرًا، هذه الميزة غير مدعومة في متصفحك');
+                return;
+            }
+            
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = "en-US";
             utterance.rate = 0.9;
             utterance.pitch = 1;
             
-            const voices = window.speechSynthesis.getVoices();
-            const googleVoice = voices.find(voice => 
-                voice.lang === 'en-US' && voice.name.includes('Google'));
-            utterance.voice = googleVoice || voices.find(voice => voice.lang === 'en-US');
+            // انتظر حتى يتم تحميل الأصوات
+            const speak = () => {
+                const voices = window.speechSynthesis.getVoices();
+                const googleVoice = voices.find(voice => 
+                    voice.lang === 'en-US' && voice.name.includes('Google'));
+                utterance.voice = googleVoice || voices.find(voice => voice.lang === 'en-US');
+                window.speechSynthesis.speak(utterance);
+            };
             
-            window.speechSynthesis.speak(utterance);
+            if (speechSynthesis.getVoices().length > 0) {
+                speak();
+            } else {
+                speechSynthesis.onvoiceschanged = speak;
+            }
         }
 
         // عرض الأسئلة عند تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', function() {
+        window.onload = function() {
             displayQuestions();
-            
-            if (speechSynthesis.onvoiceschanged !== undefined) {
-                speechSynthesis.onvoiceschanged = loadVoices;
-            }
-        });
+        };
 
         function loadVoices() {
             const voices = window.speechSynthesis.getVoices();
